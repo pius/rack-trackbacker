@@ -1,6 +1,17 @@
 = rack-trackbacker
 
-Description goes here.
+Adds trackback capabilities to your Rack application.
+
+Trackback Spec: http://www.sixapart.com/pronet/docs/trackback_spec
+
+Not ready for production use.  Soon, though.
+
+== TODO
+
+Add specs
+Document
+Add examples
+Add spam-checking abstraction
 
 == Note on Patches/Pull Requests
  
