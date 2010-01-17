@@ -84,7 +84,7 @@ module Rack
     end
   
     def spammy?
-      raise "Sorry, you need to provide both the defensio_key and defensio_owner_url if you want to check spamminess" (defensio_key && defensio_owner_url)
+      raise "Sorry, you need to provide both the defensio_key and defensio_owner_url if you want to check spamminess" unless (defensio_key && defensio_owner_url)
       @spammy ||= RDefensio::API.audit_comment({"user-ip" => user_ip,
                                     "article-date" => article_date,
                                     "comment-author" => blog_name,
