@@ -17,6 +17,7 @@ module Rack
     FORM_HEADER = "application/x-www-form-urlencoded".freeze
     TRACKBACK_HEADER = "trackback-request".freeze
     TRACKBACKABLE_ID = "trackbackable-id".freeze
+    RESPONSE = "trackback-response".freeze
     
     DEFAULT_OPTIONS = {
       :add_trackbacks_with => nil,
@@ -46,6 +47,7 @@ module Rack
       trackback_request = headers['Content-Type'].include?(FORM_HEADER) && headers[TRACKBACK_HEADER] && headers[TRACKBACKABLE_ID]
 
       if trackback_request
+        env[RESPONSE] = true
         trackback_successful = @trackback_adder.call[headers[TRACKBACKABLE_ID], @trackback = Trackback.new(params)]
         trackback_successful ? [201, headers, @trackback.to_xml] : [400, headers, @trackback.to_xml]
       else
