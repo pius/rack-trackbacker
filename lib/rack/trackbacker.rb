@@ -1,7 +1,10 @@
 require 'rack/request'
 require 'rack/utils'
 
-require 'durran-validatable'
+require 'rubygems'
+
+gem "durran-validatable", ">= 2.0.1"
+require 'validatable'
 require 'rdefensio'
 require 'builder'
 
@@ -16,7 +19,7 @@ module Rack
     TRACKBACKABLE_ID = "trackbackable-id".freeze
     
     DEFAULT_OPTIONS = {
-      :add_trackbacks_with => nil
+      :add_trackbacks_with => nil,
       :defensio_key => nil,
       :defensio_owner_url => nil
     }
@@ -40,17 +43,19 @@ module Rack
 
       status, headers, body = @app.call(env)
       
-      trackback_request? = headers['Content-Type'].include?(FORM_HEADER) && headers[TRACKBACK_HEADER] && headers[TRACKBACKABLE_ID]
+      trackback_request = headers['Content-Type'].include?(FORM_HEADER) && headers[TRACKBACK_HEADER] && headers[TRACKBACKABLE_ID]
 
-      if trackback_request?
-        trackback_successful? = @trackback_adder.call[headers[TRACKBACKABLE_ID], @trackback = Trackback.new(params)]
-        trackback_successful? ? [201, headers, @trackback.to_xml] : [400, headers, @trackback.to_xml]
+      if trackback_request
+        trackback_successful = @trackback_adder.call[headers[TRACKBACKABLE_ID], @trackback = Trackback.new(params)]
+        trackback_successful ? [201, headers, @trackback.to_xml] : [400, headers, @trackback.to_xml]
       else
         [status, headers, body]
       end
     end
+  end
 
   class Trackback
+    include Validatable
 
     attr_accessor :title, :excerpt, :url, :blog_name, :errors, :valid, 
      :user_ip, :article_date, :target_type,
@@ -61,8 +66,8 @@ module Rack
     validates_presence_of :url
 
     RDefensio::API.configure do |conf|
-      conf.api_key = defensio_key
-      conf.owner_url = defensio_owner_url
+      conf.api_key = @defensio_key
+      conf.owner_url = @defensio_owner_url
       conf.format = "yaml"
       conf.service_type = "app"
     end
